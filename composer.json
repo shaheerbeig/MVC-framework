@@ -1,0 +1,15 @@
+{
+    "name": "shaheerbeig/mvc-framework",
+    "authors": [
+        {
+            "name": "shaheer beig",
+            "email": "shaheerbeig@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4":{
+            "app\\" : "./"
+        }
+    }
+}
