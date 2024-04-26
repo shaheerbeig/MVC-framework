@@ -1,39 +1,45 @@
 <?php
 
 namespace app\core;
-use app\core\Statuscode;
 class Router{
     //this array will store the callback function against the requested url/paths.
     protected array $storeRoutes = [];
+    public Request $request;
 
+    public function __construct(Request $request){
+        $this->request = $request;
+    }
     public function register($request,$path , $callback){
         $this->storeRoutes[$request][$path] = $callback;
     }
     public function get(string $path ,$callback){
         $this->register("get",$path,$callback);
     }
-
     public function post($path , $callback){
         $this->register("post",$path,$callback);
     }
-
-    public function resolve($method,$requestedURL){
-        $callback = $this->storeRoutes[$method][$requestedURL] ?? false;
+    public function resolve(){
+        $requestedURL = $this->request->getPath();
+        $method = $this->request->getmethod();
         
-        if($callback === false){
-            Application::$app->status->setresposeCode(404);
-            return  $this->ErrorRender("Error 404");
-        }
-        else{
+        $callback = $this->storeRoutes[$method][$requestedURL] ?? false;
+        try{
+            if ($callback === false) {
+                Application::$app->status->setresposeCode(404);
+                return $this->ErrorRender("Error 404");
+            }
 
-            //this means that the function assocaited to a particular request is not a callback function rather a string so we will render the 
-            //string.
-            if(is_string($callback)){
+            if (is_string($callback)) {
                 return $this->render($callback);
             }
-            else{
-                return  call_user_func($callback);
+
+            if (is_array($callback)) {
+                $callback[0] = new $callback[0]();
             }
+            return call_user_func($callback);
+
+        }catch(\Exception $e){
+            echo "Exception thrown " . $e->getMessage();
         }
     }
     public function ErrorRender($view){
@@ -41,11 +47,12 @@ class Router{
         return str_replace('{{content}}',$view,$layout);
     }
 
-    public function render($view){
+    public function render($view) {
         $layout = $this->pageLayout();
-        $viewLayout = $this->viewOnly($view);
-        return str_replace('{{content}}',$viewLayout,$layout);
+        $viewContent = $this->viewOnly($view);
+        return str_replace('{{content}}', $viewContent, $layout);
     }
+    
     protected function pageLayout(){
         ob_start();
         require_once Application::$rootPath .  "/view/layouts/mainlayout.php";
@@ -53,8 +60,9 @@ class Router{
     }
 
     protected function viewOnly($view){
+        $filepath = Application::$rootPath .  "/view/$view.php";
         ob_start();
-        require_once Application::$rootPath .  "/view/$view.php";
+        require_once $filepath;
         return ob_get_clean();
     }
 };
