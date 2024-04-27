@@ -4,9 +4,19 @@ use app\core\Application;
 use app\controller\Sitecontroller;
 
 require_once  '../vendor/autoload.php';
-$rootDirectory = dirname(__DIR__);
+$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+$dotenv->load();
 
-$app = new Application($rootDirectory);
+$rootDirectory = dirname(__DIR__);
+$configuration = [
+    'db'=> [
+        'dsn' => $_ENV['DB_DSN'],
+        'user' => $_ENV['DB_USER'],
+        'password' => $_ENV['DB_PASSWORD']
+    ]
+];
+$app = new Application($rootDirectory,$configuration['db']);
+
 $app->router->get('/',[Sitecontroller::class, 'home']);
 $app->router->get('/contact', [Sitecontroller::class, 'contact']);
 $app->router->post('/contact', [Sitecontroller::class, 'HomeControllerRender']);
