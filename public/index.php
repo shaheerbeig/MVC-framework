@@ -5,7 +5,7 @@ use app\controller\Sitecontroller;
 
 require_once  '../vendor/autoload.php';
 $rootDirectory = dirname(__DIR__);
-echo $rootDirectory;
+
 $app = new Application($rootDirectory);
 $app->router->get('/',[Sitecontroller::class, 'home']);
 $app->router->get('/contact', [Sitecontroller::class, 'contact']);
