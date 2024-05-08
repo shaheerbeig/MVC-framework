@@ -1,0 +1,1 @@
+<h1><?php echo $params['error']->getcode() ?> - <?php echo $params['error']->getMessage() ?></h1>
