@@ -2,19 +2,27 @@
 namespace app\core;
 
 abstract class Model{
-
+    public const STATUS_ACTIVE = 1;
+    public const STATUS_INACTIVE = 0;
+    public const STATUS_DELETED = 2;
     //THESE ARE JUST RULES DEFINED AGAINST WHICH DATA WILL BE VALIDATED.
     public const RULE_REQUIRED = 'required';
     public const RULE_MIN = 'min';
     public const RULE_MATCH = 'match';
     public const RULE_EMAIL = 'email';
+    public const RULE_DIFF_EMAIL = "unique";
+    public const RULE_EMAIL_MISMATCH = "email mismatch";
+    public const RULE_PASSWORD_MISMATCH = "password mismatch";
 
     public array $errors = [];
 
-    public array $errormsg = [self::RULE_REQUIRED => 'this filed is mandatory to be filled',
-    self::RULE_EMAIL => 'Email Address required',
-    self::RULE_MIN => 'Minimum length of the Password should be 8',
-    self::RULE_MATCH => 'This filed must be same as Password',];
+    public array $errormsg = [self::RULE_REQUIRED => 'This filed is mandatory to be filled.',
+    self::RULE_EMAIL => 'Email Address required.',
+    self::RULE_MIN => 'Minimum length of the Password should be 8.',
+    self::RULE_MATCH => 'This filed must be same as Password.',
+    self::RULE_DIFF_EMAIL => 'Email already Used before. Use another email.',
+    self::RULE_EMAIL_MISMATCH => 'User with this Email Address donot exists.',
+    self::RULE_PASSWORD_MISMATCH => 'Password Donot Match.'];
 
     //this function will just populate the class variables with the user provided data.
     public function LoadData($data){
@@ -24,7 +32,7 @@ abstract class Model{
             }
         }
     }
-    abstract public function rules(): array ;
+    abstract public function rules():array ;
 
     public function validateData(){
         foreach($this->rules() as $key => $value){  
@@ -53,6 +61,20 @@ abstract class Model{
                     $field_to_match = $rule['match'];
                     if ($data !== $this->{$field_to_match}) { 
                         $this->handleerrors($key, self::RULE_MATCH);
+                    }
+                }
+                if($actualrule === self::RULE_DIFF_EMAIL){
+                    $classname = $rule['class'];
+                    $tablename = $classname::tableName();
+                    $attr = $rule['attribute'] ?? $key;
+
+                    $query = "SELECT * FROM $tablename WHERE $attr = :attr";
+                    $stmt = Application::$app->db->pdo->prepare($query);
+                    $stmt->bindValue(":attr",$data);
+                    $stmt->execute();
+                    $userrecord = $stmt->fetch();
+                    if($userrecord){
+                        $this->handleerrors($key,self::RULE_DIFF_EMAIL);
                     }
                 }
             }
