@@ -17,7 +17,7 @@ class Authcontroller extends Controllers{
     public function login(Request $request){
         
         $userLogin = new userlogin();
-
+        Application::$app->title = "Login";
         if($request->getmethod() === 'post'){
             $userLogin->LoadData($request->getBody());
 
@@ -32,6 +32,7 @@ class Authcontroller extends Controllers{
     }
 
     public function register(Request $request){
+        Application::$app->title = "Register";
         $registration = new users();
 
         if($request->getmethod() === 'post'){
@@ -52,11 +53,13 @@ class Authcontroller extends Controllers{
     }
 
     public function logout(Request $request){
+        Application::$app->title = "Home";
         Application::$app->logout();
         header('Location: /');
     }
 
     public function profile(){
+        Application::$app->title = "Profile";
         return Application::$app->router->render('profile');
     }
 };
