@@ -12,7 +12,7 @@ class Sitecontroller extends Controllers{
 
         if($request->getmethod() == 'post'){
             $contact->LoadData($request->getBody());
-                if($contact->validateData() && $contact->send()){
+                if($contact->validateData() ){
                     Application::$app->session->createFlash('success','Thank you for contacting Us. ','success');
                     header('Location: /contact');
                     exit();
