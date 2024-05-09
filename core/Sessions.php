@@ -29,4 +29,15 @@ class Sessions{
         }
         return null;
     }
+
+    public function set($key,$value){
+        $_SESSION[$key] = $value;
+    }
+    public function get($key){
+        return $_SESSION[$key] ?? false ;
+    }
+
+    public function remove($user){
+        unset($_SESSION[$user]);
+    }
 };

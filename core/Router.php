@@ -1,6 +1,7 @@
 <?php
 
 namespace app\core;
+use app\core\exception\NotFoundException;
 class Router{
     //this array will store the callback function against the requested url/paths.
     protected array $storeRoutes = [];
@@ -25,8 +26,7 @@ class Router{
         $callback = $this->storeRoutes[$method][$requestedURL] ?? false;
         try{
             if ($callback === false) {
-                Application::$app->status->setresposeCode(404);
-                return $this->ErrorRender("Error 404");
+                throw new NotFoundException();
             }
 
             if (is_string($callback)) {
@@ -34,12 +34,20 @@ class Router{
             }
 
             if (is_array($callback)) {
-                $callback[0] = new $callback[0]();
+                Application::$app->controller = new $callback[0]();
+                Application::$app->controller->action = $callback[1];
+                foreach(Application::$app->controller->Middlewares as $middleware){
+                    $middleware->execute();
+                }
+                $callback[0] = Application::$app->controller ;
             }
-            return call_user_func($callback);
+            return call_user_func($callback,$this->request);
 
         }catch(\Exception $e){
-            echo "Exception thrown " . $e->getMessage();
+            Application::$app->response->setresposeCode($e->getCode());
+            echo $this->render('errors',[
+                'error' => $e
+            ]);
         }
     }
     public function ErrorRender($view){
@@ -47,9 +55,9 @@ class Router{
         return str_replace('{{content}}',$view,$layout);
     }
 
-    public function render($view) {
+    public function render($view,$params = []) {
         $layout = $this->pageLayout();
-        $viewContent = $this->viewOnly($view);
+        $viewContent = $this->viewOnly($view,$params);
         return str_replace('{{content}}', $viewContent, $layout);
     }
     
@@ -59,8 +67,8 @@ class Router{
         return ob_get_clean();
     }
 
-    protected function viewOnly($view){
-        $filepath = Application::$rootPath .  "/view/$view.php";
+    protected function viewOnly($view,$params){
+        $filepath = Application::$rootPath .  "/view/$view.php";     
         ob_start();
         require_once $filepath;
         return ob_get_clean();

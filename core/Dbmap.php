@@ -7,8 +7,10 @@ abstract class Dbmap extends Model{
     //this method will just return the table name.
     abstract public function tableName(); 
     abstract public function getattribute():array ;
+    abstract static public function getIdentifier():string;
+    abstract public function displayName();
 
-
+    //this function is responsible for inserting user dat ain the MYSQL database
     public function saveUser(){
         $tablename = $this->tableName();
         $userAttributes = $this->getattribute();
@@ -22,4 +24,5 @@ abstract class Dbmap extends Model{
         }
         $stmt->execute();
     }
+
 };
