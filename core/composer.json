@@ -1,0 +1,15 @@
+{
+    "name": "shaheerbeig/mvc-framework-core",
+    "autoload": {
+        "psr-4": {
+            "Shaheerbeig\\MvcFrameworkCore\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "shaheer beig",
+            "email": "shaheerbeig@gmail.com"
+        }
+    ],
+    "require": {}
+}
