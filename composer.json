@@ -1,0 +1,17 @@
+{
+    "name": "shaheerbeig/mvc-framework",
+    "authors": [
+        {
+            "name": "shaheer beig",
+            "email": "shaheerbeig@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
+    },
+    "autoload": {
+        "psr-4":{
+            "app\\" : "./"
+        }
+    }
+}
